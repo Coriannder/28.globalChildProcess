@@ -1,10 +1,10 @@
 import mongoose from 'mongoose'
 import transformMongoObject from '../utils/objectUtils.js'
+import { URL_MONGO } from '../config/config.js'
 
 
-const URL = 'mongodb+srv://admin:admin456@22mocksynormalizacion.xj8iwvr.mongodb.net/test'
 
-await  mongoose.connect(URL, {
+await  mongoose.connect(URL_MONGO, {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })

@@ -6,11 +6,14 @@ import { productosDao , mensajesDao , usuariosDao } from './daos/index.js'
 import { ContenedorMemoria } from './container/ContenedorMemoria.js'
 import { createManyProducts } from './mocks/productosMocks.js'
 import { webAuth, apiAuth } from '../src/auth/index.js'
+import { SECRET_SESSION_MONGO, URL_MONGO, PORT } from './config/config.js'
 
 import session from 'express-session'
 import MongoStore from 'connect-mongo'
 
 import { createHash , isValidPassword } from './utils/crypt.js'
+
+
 
 
 
@@ -34,10 +37,10 @@ app.use(session({
     // store: MongoStore.create({ mongoUrl: config.mongoLocal.cnxStr }),
     store: MongoStore.create(
         {
-            mongoUrl:'mongodb+srv://admin:admin456@22mocksynormalizacion.xj8iwvr.mongodb.net/test',
+            mongoUrl: URL_MONGO,
             mongoOptions: advancedOptions
         }),
-    secret: 'shhhhhhhhhhhhhhhhhhhhh',
+    secret: SECRET_SESSION_MONGO,
     resave: false,
     saveUninitialized: false,
     rolling: true,
@@ -72,10 +75,6 @@ passport.serializeUser(( user, done ) => {
 passport.deserializeUser( async (id, done) => {
     done(null, await usuariosDao.listar(id))
 })
-
-
-
-
 
 //------------------------------RUTAS---------------------//
 let subtitleLogin
@@ -179,10 +178,26 @@ io.on('connection', async (socket) => {
 })
 
 
+//------------------YARGS---------------------------------//
+import yargs from  'yargs'
+
+const port = yargs(process.argv.slice(2))
+    .alias({
+        p: 'port'
+    })
+    .default({
+        port: PORT
+    })
+    .argv
+
+//------------------------------------------------------------------//
+
+
+
 //------------------Configuracion Server---------------------------------//
 
-const PORT = 8080
-const server = httpServer.listen(PORT, ()=>{
+//const PORT = 8080
+const server = httpServer.listen(port, ()=>{
     console.log(`Servidor escuchando en el puerto ${server.address().port}`)
 })
 server.on(`error`, error => console.log(`Error en servidor: ${error}`))
