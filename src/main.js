@@ -13,10 +13,6 @@ import MongoStore from 'connect-mongo'
 
 import { createHash , isValidPassword } from './utils/crypt.js'
 
-
-
-
-
 const app = express()
 const httpServer = new HttpServer(app)
 const io = new IOServer(httpServer)
@@ -28,6 +24,21 @@ app.use(express.urlencoded({extended: true}))
 //------------------Configuracion EJS---------------------------------//
 app.set('views', './views')
 app.set('view engine', 'ejs')
+
+
+//------------------YARGS---------------------------------//
+import yargs from  'yargs'
+
+const port = yargs(process.argv.slice(2))
+    .alias({
+        p: 'port'
+    })
+    .default({
+        port: PORT
+    })
+    .argv
+
+//------------------------------------------------------------------//
 
 
 
@@ -56,6 +67,7 @@ app.use(passport.session())
 //------------------------PASSPORT----------------------------------//
 import passport from 'passport'
 import  { Strategy as LocalStrategy } from 'passport-local'
+import { noBloqueante } from './routes/no-bloqueante.js'
 
 passport.use('login' , new LocalStrategy( async ( username , password , done) => {
 
@@ -80,6 +92,24 @@ passport.deserializeUser( async (id, done) => {
 let subtitleLogin
 let ruta = 'login'
 let error
+
+app.get('/info' ,  (req, res) => {
+
+    const datos = {
+        argEntrada: process.argv.splice(2),
+        sistemaOperativo: process.platform,
+        nodeVersion: process.version,
+        rss: process.memoryUsage().rss,
+        path: process.execPath ,
+        idProcess: process.pid,
+        proyectDir: process.cwd()
+    }
+    res.json(datos)
+    console.log(datos)
+})
+
+app.use('/api/randoms', noBloqueante )
+
 
 app.get('/login' ,  (req, res) => {
     res.render('pages/login', {subtitleLogin: subtitleLogin})
@@ -176,22 +206,6 @@ io.on('connection', async (socket) => {
         io.sockets.emit('messages', mensajesMemoria.listarAll())
     })
 })
-
-
-//------------------YARGS---------------------------------//
-import yargs from  'yargs'
-
-const port = yargs(process.argv.slice(2))
-    .alias({
-        p: 'port'
-    })
-    .default({
-        port: PORT
-    })
-    .argv
-
-//------------------------------------------------------------------//
-
 
 
 //------------------Configuracion Server---------------------------------//
