@@ -7,10 +7,6 @@ process.on('message', cantidad => {
     }
     const resultado = {}
     numeros.forEach(el => (resultado[el] = resultado[el] + 1 || 1))
-    /* const datos = {
-        max: Math.max(...resultado),
-        min:Math.min(...numeros),
-        resultado: {...resultado} */
     process.send(resultado)
     process.exit()
 })
